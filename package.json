@@ -1,0 +1,23 @@
+{
+  "name": "branas-clean-arch-t10",
+  "version": "1.0.0",
+  "description": "",
+  "type": "module",
+  "scripts": {
+    "start": "tsx ./src",
+    "test": "vitest run",
+    "test:coverage": "vitest run --coverage"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "typescript": "^4.9.5"
+  },
+  "devDependencies": {
+    "@faker-js/faker": "^7.6.0",
+    "@vitest/coverage-c8": "^0.28.4",
+    "tsx": "^3.12.2",
+    "vitest": "^0.28.4"
+  }
+}
