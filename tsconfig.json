@@ -4,7 +4,10 @@
     "target": "ES2022",
     "module": "NodeNext",
     "outDir": "./dist",
-    "strict": true
+    "strict": true,
+    "lib": [
+      "ES2022"
+    ]
   },
   "include": [
     "src",

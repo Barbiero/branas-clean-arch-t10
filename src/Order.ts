@@ -1,23 +1,35 @@
+import { Temporal } from '@js-temporal/polyfill';
+import Coupon from './Coupon.js';
 import Cpf from './Cpf.js';
 import SaleItem from './SaleItem.js';
 
 export default class Order {
   readonly buyer: Cpf;
-  constructor(buyer: Cpf | string, readonly saleItems: SaleItem[], readonly discount: number = 0) {
+  constructor(buyer: Cpf | string, readonly saleItems: SaleItem[], readonly coupons: Coupon[] = []) {
     if (!(buyer instanceof Cpf)) {
       this.buyer = new Cpf(buyer);
     } else {
       this.buyer = buyer;
     }
-    
-    if (this.discount < 0 || this.discount > 1) {
-      throw new Error('Sale discount must be between 0 and 100%');
-    }
+  }
+
+  getRawCost() {
+    return this.saleItems.reduce((acc, curr) => acc + curr.getTotalCost(), 0.0);
   }
 
   getTotalCost() {
-    const basePrice = this.saleItems.reduce((acc, curr) => acc + curr.getTotalCost(), 0.0);
-    const discount = basePrice * this.discount;
-    return basePrice - discount;
+    const finalDiscount = this.coupons.reduce((acc, curr) => {
+      if (curr.isExpired(Temporal.Now.plainDate(Temporal.Calendar.from('gregory')))) {
+        throw new Error('Invalid coupon');
+      }
+      return curr.discountRate + acc;
+    }, 0);
+
+    if (finalDiscount > 1) {
+      return 0;
+    }
+    const rawCost = this.getRawCost();
+    const discount = rawCost * finalDiscount;
+    return rawCost - discount;
   }
 }
