@@ -37,7 +37,7 @@ export class ProductDimensions {
 export default class Product {
   static MIN_FREIGHT = 10;
   constructor(
-    readonly guid: string,
+    readonly id: number,
     readonly name: string,
     readonly price: number,
     readonly dimensions: ProductDimensions,

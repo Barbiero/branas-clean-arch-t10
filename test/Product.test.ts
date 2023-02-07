@@ -1,11 +1,10 @@
 import { expect, test } from 'vitest';
 import Product, { ProductDimensions } from '../src/Product.js';
-import crypto from 'node:crypto';
 
 test('Nenhuma dimensão do item pode ser negativa', () => {
   expect(() => {
     new Product(
-      crypto.randomUUID(),
+      1,
       'camera',
       -1,
       new ProductDimensions(1, 0.15, 0.2, 0.1),
@@ -13,7 +12,7 @@ test('Nenhuma dimensão do item pode ser negativa', () => {
   }).toThrow('Product must have a positive price');
   expect(() => {
     new Product(
-      crypto.randomUUID(),
+      2,
       'camera',
       1250,
       new ProductDimensions(11, -0.15, 0.2, 0.1),
@@ -24,7 +23,7 @@ test('Nenhuma dimensão do item pode ser negativa', () => {
 test('O peso do item não pode ser negativo', () => {
   expect(() => {
     new Product(
-      crypto.randomUUID(),
+      3,
       'camera',
       1250,
       new ProductDimensions(-1, 0.15, 0.2, 0.1),
@@ -34,7 +33,6 @@ test('O peso do item não pode ser negativo', () => {
 
 test('Deve calcular densidade corretamente', () => {
   const dimensions = new ProductDimensions(1, 0.15, 0.2, 0.1);
-  console.info(`${dimensions}`);
   expect(dimensions.volume).toEqual(0.003);
   expect(dimensions.density).to.approximately(333.3, 0.1);
 });
@@ -42,19 +40,19 @@ test('Deve calcular densidade corretamente', () => {
 test('Deve calcular o valor do frete com base nas dimensões (altura, largura e profundidade em cm) e o peso dos produtos (em kg)', () => {
   const products = [
     new Product(
-      crypto.randomUUID(),
+      1,
       'camera',
       1250,
       new ProductDimensions(1, 0.15, 0.2, 0.1),
     ),
     new Product(
-      crypto.randomUUID(),
+      2,
       'guitarra',
       5000,
       new ProductDimensions(3, 1, 0.3, 0.1),
     ),
     new Product(
-      crypto.randomUUID(),
+      3,
       'geladeira',
       15000,
       new ProductDimensions(40, 2, 1, 0.5),

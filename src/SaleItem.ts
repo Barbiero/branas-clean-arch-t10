@@ -10,4 +10,8 @@ export default class SaleItem {
   getTotalCost() {
     return this.product.price * this.quantity;
   }
+
+  getFreightCost(distanceKm: number) {
+    return this.product.getFreightCost(distanceKm) * this.quantity;
+  }
 }

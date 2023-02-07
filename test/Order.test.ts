@@ -1,5 +1,4 @@
 import { Temporal } from '@js-temporal/polyfill';
-import crypto from 'node:crypto';
 import { describe, expect, test } from 'vitest';
 import Coupon from '../src/Coupon.js';
 import Cpf from '../src/Cpf.js';
@@ -8,24 +7,9 @@ import Product, { ProductDimensions } from '../src/Product.js';
 import SaleItem from '../src/SaleItem.js';
 
 const products = [
-  new Product(
-    crypto.randomUUID(),
-    'camera',
-    1250,
-    new ProductDimensions(1, 0.15, 0.2, 0.1),
-  ),
-  new Product(
-    crypto.randomUUID(),
-    'guitarra',
-    5000,
-    new ProductDimensions(3, 1, 0.3, 0.1),
-  ),
-  new Product(
-    crypto.randomUUID(),
-    'geladeira',
-    15000,
-    new ProductDimensions(40, 2, 1, 0.5),
-  ),
+  new Product(1, 'camera', 1250, new ProductDimensions(1, 0.15, 0.2, 0.1)),
+  new Product(2, 'guitarra', 5000, new ProductDimensions(3, 1, 0.3, 0.1)),
+  new Product(3, 'geladeira', 15000, new ProductDimensions(40, 2, 1, 0.5)),
 ];
 
 describe('Criação de pedido', () => {
@@ -36,7 +20,7 @@ describe('Criação de pedido', () => {
       new SaleItem(products[2], 1.0),
     ]);
 
-    expect(sale.getTotalCost()).toBe(21250);
+    expect(sale.getTotalCost(1000)).toBe(21690);
   });
 
   test('Deve criar um pedido com 3 produtos, associar um cupom de desconto e calcular o total (percentual sobre o total do pedido) ', () => {
@@ -50,7 +34,7 @@ describe('Criação de pedido', () => {
       [new Coupon(0.3, 'BANANA', Temporal.PlainDate.from('2030-10-10'))],
     );
 
-    expect(sale.getTotalCost()).toBe(14875);
+    expect(sale.getTotalCost(1000)).toBe(15315);
   });
 
   test('Não deve criar um pedido com cpf inválido (lançar algum tipo de erro)', () => {
@@ -69,7 +53,7 @@ describe('Criação de pedido', () => {
       ],
       [new Coupon(0.3, 'BANANA', Temporal.PlainDate.from('2003-10-10'))],
     );
-    expect(() => sale.getTotalCost()).toThrow('Invalid coupon');
+    expect(() => sale.getTotalCost(1000)).toThrow('Invalid coupon');
   });
 
   test('Ao fazer um pedido, a quantidade de um item não pode ser negativa', () => {

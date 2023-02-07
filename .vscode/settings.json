@@ -1,5 +1,0 @@
-{
-    "editor.tabSize": 2,
-    "vitest.enable": true,
-    "vitest.commandLine": "npx vitest"
-}
