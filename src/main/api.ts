@@ -1,6 +1,7 @@
 import express from 'express';
 import pgp from 'pg-promise';
 import Checkout from '../Checkout.js';
+import CurrencyGatewayHttp from '../CurrencyGatewayHttp.js';
 import CouponRepositoryDatabase from '../repository/CouponRepositoryDatabase.js';
 import ProductRepositoryDatabase from '../repository/ProductRepositoryDatabase.js';
 
@@ -34,8 +35,13 @@ app.route('/checkout').post<{}, Output, Input>(async (req, res) => {
   try {
     const productRepository = new ProductRepositoryDatabase(connection);
     const couponRepository = new CouponRepositoryDatabase(connection);
+    const currencyGateway = new CurrencyGatewayHttp();
 
-    const checkout = new Checkout(productRepository, couponRepository);
+    const checkout = new Checkout(
+      productRepository,
+      couponRepository,
+      currencyGateway,
+    );
     const result = await checkout.execute(req.body, 1000);
 
     res.json(result).end();

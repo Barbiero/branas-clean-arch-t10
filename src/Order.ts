@@ -5,6 +5,7 @@ import SaleItem from './SaleItem.js';
 
 export default class Order {
   readonly buyer: Cpf;
+
   constructor(
     buyer: Cpf | string,
     readonly saleItems: SaleItem[],
@@ -17,24 +18,23 @@ export default class Order {
     }
   }
 
-  getRawCost() {
-    return this.saleItems.reduce((acc, curr) => acc + curr.getTotalCost(), 0.0);
-  }
-
-  getTotalFreightCost(distanceKm: number) {
+  getRawCost(currencies: Record<string, number> = {}) {
     return this.saleItems.reduce(
-      (acc, curr) => acc + curr.getFreightCost(distanceKm),
+      (acc, curr) => acc + curr.getTotalCost(currencies),
       0.0,
     );
   }
 
-  getTotalCost(distanceKm: number) {
+  getTotalFreightCost(distanceKm: number, currencies: Record<string, number> = {}) {
+    return this.saleItems.reduce(
+      (acc, curr) => acc + curr.getFreightCost(distanceKm, currencies),
+      0.0,
+    );
+  }
+
+  getTotalCost(distanceKm: number, currencies: Record<string, number> = {}) {
     const finalDiscount = this.coupons.reduce((acc, curr) => {
-      if (
-        curr.isExpired(
-          Temporal.Now.plainDate(Temporal.Calendar.from('gregory')),
-        )
-      ) {
+      if (curr.isExpired(Temporal.Now.plainDateISO())) {
         throw new Error('Invalid coupon');
       }
       return curr.discountRate + acc;
@@ -43,8 +43,10 @@ export default class Order {
     if (finalDiscount > 1) {
       return 0;
     }
-    const rawCost = this.getRawCost();
+    const rawCost = this.getRawCost(currencies);
     const discount = rawCost * finalDiscount;
-    return rawCost - discount + this.getTotalFreightCost(distanceKm);
+    return (
+      rawCost - discount + this.getTotalFreightCost(distanceKm, currencies)
+    );
   }
 }

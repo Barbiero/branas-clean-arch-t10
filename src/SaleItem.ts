@@ -7,11 +7,21 @@ export default class SaleItem {
     }
   }
 
-  getTotalCost() {
-    return this.product.price * this.quantity;
+  get currency() {
+    return this.product.currency;
   }
 
-  getFreightCost(distanceKm: number) {
-    return this.product.getFreightCost(distanceKm) * this.quantity;
+  getTotalCost(currencies: Record<string, number>) {
+    return (
+      this.product.price * this.quantity * (currencies[this.currency] ?? 1)
+    );
+  }
+
+  getFreightCost(distanceKm: number, currencies: Record<string, number>) {
+    return (
+      this.product.getFreightCost(distanceKm) *
+      this.quantity *
+      (currencies[this.currency] ?? 1)
+    );
   }
 }

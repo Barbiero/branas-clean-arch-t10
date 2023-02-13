@@ -41,6 +41,7 @@ export default class Product {
     readonly name: string,
     readonly price: number,
     readonly dimensions: ProductDimensions,
+    readonly currency: string = "BRL",
   ) {
     if (price <= 0) {
       throw new Error('Product must have a positive price');

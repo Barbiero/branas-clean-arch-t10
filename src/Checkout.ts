@@ -1,5 +1,6 @@
 import Coupon from './Coupon.js';
 import Cpf from './Cpf.js';
+import CurrencyGateway from './CurrencyGateway.js';
 import Order from './Order.js';
 import CouponRepository from './repository/CouponRepository.js';
 import ProductRepository from './repository/ProductRepository.js';
@@ -14,12 +15,13 @@ type Input = {
   coupon?: string;
 };
 
-type Output = { total: number };
+type Output = { total: number; freight: number };
 
 export default class Checkout {
   constructor(
     readonly productRepository: ProductRepository,
     readonly couponRepository: CouponRepository,
+    readonly currencyGateway: CurrencyGateway,
   ) {}
 
   async execute(input: Input, distanceKm: number): Promise<Output> {
@@ -44,7 +46,11 @@ export default class Checkout {
     }
 
     const order = new Order(cpf, saleItems, coupon ? [coupon] : []);
+    const currencies = await this.currencyGateway.getCurrencies();
 
-    return { total: order.getTotalCost(distanceKm) };
+    return {
+      total: order.getTotalCost(distanceKm, currencies),
+      freight: order.getTotalFreightCost(distanceKm, currencies),
+    };
   }
 }

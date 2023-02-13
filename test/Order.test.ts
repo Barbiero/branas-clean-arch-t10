@@ -69,15 +69,9 @@ describe('Criação de pedido', () => {
       );
     }).toThrow('Sale Item must have some positive quantity');
   });
+
+  test('Deve gerar o número de série do pedido', () => {});
+  test('Deve fazer um pedido, salvando no banco de dados', () => {});
+  test('Deve simular o frete, retornando o frete previsto para o pedido', () => {});
+  test('Deve validar o cupom de desconto, indicando em um boolean se o cupom é válido', () => {});
 });
-
-/*
-
-1 - Não deve aplicar cupom de desconto expirado
-2 - Ao fazer um pedido, a quantidade de um item não pode ser negativa
-3 - Ao fazer um pedido, o mesmo item não pode ser informado mais de uma vez
-4 - Nenhuma dimensão do item pode ser negativa
-5 - O peso do item não pode ser negativo
-6 - Deve calcular o valor do frete com base nas dimensões (altura, largura e profundidade em cm) e o peso dos produtos (em kg)
-7 - Deve retornar o preço mínimo de frete caso ele seja superior ao valor calculado
-*/

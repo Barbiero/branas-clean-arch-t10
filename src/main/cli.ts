@@ -2,6 +2,7 @@ import Checkout from '../Checkout.js';
 import pgp from 'pg-promise';
 import ProductRepositoryDatabase from '../repository/ProductRepositoryDatabase.js';
 import CouponRepositoryDatabase from '../repository/CouponRepositoryDatabase.js';
+import CurrencyGatewayHttp from '../CurrencyGatewayHttp.js';
 
 type Input = {
   cpf: string;
@@ -35,8 +36,13 @@ process.stdin.on('data', async (chunk) => {
     try {
       const productRepository = new ProductRepositoryDatabase(connection);
       const couponRepository = new CouponRepositoryDatabase(connection);
+      const currencyGateway = new CurrencyGatewayHttp();
 
-      const checkout = new Checkout(productRepository, couponRepository);
+      const checkout = new Checkout(
+        productRepository,
+        couponRepository,
+        currencyGateway,
+      );
       const output = await checkout.execute(input, 1000);
 
       console.info(output.total);
