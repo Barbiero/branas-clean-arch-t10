@@ -4,7 +4,8 @@ import { afterAll, beforeAll, beforeEach, expect, test } from 'vitest';
 import Checkout from '../src/Checkout.js';
 import CurrencyGateway from '../src/CurrencyGateway.js';
 import CurrencyGatewayHttp from '../src/CurrencyGatewayHttp.js';
-import Product, { ProductDimensions } from '../src/Product.js';
+import CurrencyTable from '../src/domain/entity/CurrencyTable.js';
+import Product, { ProductDimensions } from '../src/domain/entity/Product.js';
 import CouponRepositoryDatabase from '../src/repository/CouponRepositoryDatabase.js';
 import ProductRepository from '../src/repository/ProductRepository.js';
 import ProductRepositoryDatabase from '../src/repository/ProductRepositoryDatabase.js';
@@ -145,22 +146,23 @@ test('Deve criar um pedido com 1 produto calculando o frete com valor mínimo', 
 test('Deve criar um pedido com 1 produto em dólar usando um stub', async function () {
   const stubCurrencyGateway = sinon
     .stub(CurrencyGatewayHttp.prototype, 'getCurrencies')
-    .resolves({
-      usd: 3,
-    });
+    .resolves(new CurrencyTable({ usd: 3 }));
   const stubProductRepository = sinon
     .stub(ProductRepositoryDatabase.prototype, 'getById')
     .resolves(
       new Product(5, 'A', 1000, new ProductDimensions(10, 10, 10, 10), 'USD'),
     );
-  const input = {
-    cpf: '407.302.170-27',
-    orders: [{ idProduct: 5, count: 1 }],
-  };
-  const output = await checkout.execute(input, 1000);
-  expect(output.total).toBe(1100);
-  stubCurrencyGateway.restore();
-  stubProductRepository.restore();
+  try {
+    const input = {
+      cpf: '407.302.170-27',
+      orders: [{ idProduct: 5, count: 1 }],
+    };
+    const output = await checkout.execute(input, 1000);
+    expect(output.total).toBe(3100);
+  } finally {
+    stubCurrencyGateway.restore();
+    stubProductRepository.restore();
+  }
 });
 
 test('Deve criar um pedido com 3 produtos com cupom de desconto com spy', async function () {
@@ -172,45 +174,56 @@ test('Deve criar um pedido com 3 produtos com cupom de desconto com spy', async 
     CouponRepositoryDatabase.prototype,
     'getByCode',
   );
-  const input = {
-    cpf: '407.302.170-27',
-    orders: [
-      { idProduct: 1, count: 1 },
-      { idProduct: 2, count: 1 },
-      { idProduct: 3, count: 3 },
-    ],
-    coupon: 'VALE20',
-  };
-  const output = await checkout.execute(input, 1000);
-  expect(output.total).toBe(42240);
-  expect(spyCouponRepository.calledOnce).toBeTruthy();
-  expect(spyCouponRepository.calledWith('VALE20')).toBeTruthy();
-  expect(spyProductRepository.calledThrice).toBeTruthy();
-  spyCouponRepository.restore();
-  spyProductRepository.restore();
+  try {
+    const input = {
+      cpf: '407.302.170-27',
+      orders: [
+        { idProduct: 1, count: 1 },
+        { idProduct: 2, count: 1 },
+        { idProduct: 3, count: 3 },
+      ],
+      coupon: 'VALE20',
+    };
+    const output = await checkout.execute(input, 1000);
+    expect(output.total).toBe(42240);
+    expect(spyCouponRepository.calledOnce).toBeTruthy();
+    expect(spyCouponRepository.calledWith('VALE20')).toBeTruthy();
+    expect(spyProductRepository.calledThrice).toBeTruthy();
+  } finally {
+    spyCouponRepository.restore();
+    spyProductRepository.restore();
+  }
 });
 
 test('Deve criar um pedido com 1 produto em dólar usando um mock', async function () {
   const mockCurrencyGateway = sinon.mock(CurrencyGatewayHttp.prototype);
-  mockCurrencyGateway.expects('getCurrencies').once().resolves({
-    usd: 3,
-  });
-  const input = {
-    cpf: '407.302.170-27',
-    orders: [{ idProduct: 5, count: 1 }],
-  };
-  const output = await checkout.execute(input, 1000);
-  expect(output.total).toBe(2000);
-  mockCurrencyGateway.verify();
-  mockCurrencyGateway.restore();
+  mockCurrencyGateway
+    .expects('getCurrencies')
+    .once()
+    .resolves(
+      new CurrencyTable({
+        usd: 3,
+      }),
+    );
+  try {
+    const input = {
+      cpf: '407.302.170-27',
+      orders: [{ idProduct: 5, count: 1 }],
+    };
+    const output = await checkout.execute(input, 1000);
+    expect(output.total).toBe(2000);
+  } finally {
+    mockCurrencyGateway.verify();
+    mockCurrencyGateway.restore();
+  }
 });
 
 test('Deve criar um pedido com 1 produto em dólar usando um fake', async function () {
   const currencyGateway: CurrencyGateway = {
-    async getCurrencies(): Promise<any> {
-      return {
+    async getCurrencies(): Promise<CurrencyTable> {
+      return new CurrencyTable({
         usd: 3,
-      };
+      });
     },
   };
   const productRepository: ProductRepository = {
@@ -234,5 +247,5 @@ test('Deve criar um pedido com 1 produto em dólar usando um fake', async functi
     orders: [{ idProduct: 6, count: 1 }],
   };
   const output = await checkout.execute(input, 1000);
-  expect(output.total).toBe(1100);
+  expect(output.total).toBe(3100);
 });

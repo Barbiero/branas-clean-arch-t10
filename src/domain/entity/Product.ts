@@ -1,3 +1,5 @@
+import CurrencyTable from './CurrencyTable.js';
+
 export class ProductDimensions {
   constructor(
     readonly weightKg: number,
@@ -36,24 +38,20 @@ export class ProductDimensions {
 
 export default class Product {
   static MIN_FREIGHT = 10;
+
   constructor(
     readonly id: number,
     readonly name: string,
     readonly price: number,
     readonly dimensions: ProductDimensions,
-    readonly currency: string = "BRL",
+    readonly currency: string = 'BRL',
   ) {
     if (price <= 0) {
       throw new Error('Product must have a positive price');
     }
   }
 
-  getFreightCost(distanceKm: number): number {
-    const calculatedCost =
-      distanceKm * this.dimensions.volume * (this.dimensions.density / 100);
-    if (calculatedCost < Product.MIN_FREIGHT) {
-      return Product.MIN_FREIGHT;
-    }
-    return calculatedCost;
+  getPrice(currencyTable: CurrencyTable) {
+    return this.price * currencyTable.getCurrencyValue(this.currency);
   }
 }

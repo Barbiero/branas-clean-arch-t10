@@ -1,5 +1,5 @@
-import Product, { ProductDimensions } from '../Product.js';
 import pg from 'pg-promise';
+import Product, { ProductDimensions } from '../domain/entity/Product.js';
 import ProductRepository from './ProductRepository.js';
 
 type ProductSchema = {

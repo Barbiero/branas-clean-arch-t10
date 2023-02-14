@@ -1,6 +1,6 @@
 import { Temporal } from '@js-temporal/polyfill';
 import pg from 'pg-promise';
-import Coupon from '../Coupon.js';
+import Coupon from '../domain/entity/Coupon.js';
 import CouponRepository from './CouponRepository.js';
 
 export default class CouponRepositoryDatabase implements CouponRepository {

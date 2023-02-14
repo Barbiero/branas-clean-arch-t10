@@ -13,7 +13,7 @@ try {
   isApiDown = true;
 }
 
-describe.skipIf(isApiDown)('api tests', async () => {
+describe.skipIf(isApiDown).concurrent('api tests', async () => {
   test('pode pedir 1 produto', async () => {
     const resp = await axios.post(`${LOCALCONN}/checkout`, {
       cpf: '460.126.470-77',

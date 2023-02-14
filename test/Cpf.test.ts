@@ -1,5 +1,5 @@
 import { expect, test } from 'vitest';
-import Cpf from '../src/Cpf.js';
+import Cpf from '../src/domain/entity/Cpf.js';
 
 test.each(['460.126.470-77', '927.683.660-80', '153.781.230-3'])('funciona com %s ', (cpfValido) => {
   expect(() => new Cpf(cpfValido)).not.toThrow();

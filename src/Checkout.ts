@@ -1,10 +1,9 @@
-import Coupon from './Coupon.js';
-import Cpf from './Cpf.js';
+import crypto from 'node:crypto';
 import CurrencyGateway from './CurrencyGateway.js';
-import Order from './Order.js';
+import Coupon from './domain/entity/Coupon.js';
+import Order from './domain/entity/Order.js';
 import CouponRepository from './repository/CouponRepository.js';
 import ProductRepository from './repository/ProductRepository.js';
-import SaleItem from './SaleItem.js';
 
 type Input = {
   cpf: string;
@@ -25,32 +24,31 @@ export default class Checkout {
   ) {}
 
   async execute(input: Input, distanceKm: number): Promise<Output> {
-    const cpf = new Cpf(input.cpf);
     const seenIds = new Set<number>();
 
-    const saleItems: SaleItem[] = [];
-    for (const order of input.orders) {
-      if (seenIds.has(order.idProduct)) {
+    const currencies = await this.currencyGateway.getCurrencies();
+
+    const order = new Order(crypto.randomUUID(), input.cpf, currencies);
+
+    for (const orderItem of input.orders) {
+      if (seenIds.has(orderItem.idProduct)) {
         throw new Error('Duplicate item');
       }
-      seenIds.add(order.idProduct);
+      seenIds.add(orderItem.idProduct);
 
-      const product = await this.productRepository.getById(order.idProduct);
-
-      saleItems.push(new SaleItem(product, order.count));
+      const product = await this.productRepository.getById(orderItem.idProduct);
+      order.addItem(product, orderItem.count);
     }
 
     let coupon: Coupon | null = null;
     if (input.coupon) {
       coupon = await this.couponRepository.getByCode(input.coupon);
+      order.addCoupon(coupon);
     }
 
-    const order = new Order(cpf, saleItems, coupon ? [coupon] : []);
-    const currencies = await this.currencyGateway.getCurrencies();
-
     return {
-      total: order.getTotalCost(distanceKm, currencies),
-      freight: order.getTotalFreightCost(distanceKm, currencies),
+      total: order.getTotalCost(distanceKm),
+      freight: order.getTotalFreightCost(distanceKm),
     };
   }
 }
