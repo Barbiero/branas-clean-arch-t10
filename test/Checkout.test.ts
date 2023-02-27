@@ -1,6 +1,13 @@
 import pg from 'pg-promise';
 import sinon from 'sinon';
-import { afterAll, beforeAll, beforeEach, expect, test } from 'vitest';
+import {
+  afterAll,
+  afterEach,
+  beforeAll,
+  beforeEach,
+  expect,
+  test,
+} from 'vitest';
 import CurrencyGateway from '../src/CurrencyGateway.js';
 import CurrencyGatewayHttp from '../src/CurrencyGatewayHttp.js';
 import CurrencyTable from '../src/domain/entity/CurrencyTable.js';
@@ -15,11 +22,9 @@ import ProductRepositoryDatabase from '../src/repository/ProductRepositoryDataba
 
 let checkout: Checkout;
 let conn: pg.IDatabase<{}>;
-beforeAll(() => {
-  conn = pg()('postgres://postgres:123456@localhost:5432/postgres');
-});
 
-beforeEach(function () {
+beforeEach(() => {
+  conn = pg()('postgres://postgres:123456@localhost:5432/postgres');
   checkout = new Checkout(
     new ProductRepositoryDatabase(conn),
     new CouponRepositoryDatabase(conn),
@@ -28,7 +33,7 @@ beforeEach(function () {
   );
 });
 
-afterAll(() => {
+afterEach(() => {
   conn.$pool.end();
 });
 

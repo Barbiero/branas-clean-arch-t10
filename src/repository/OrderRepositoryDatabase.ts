@@ -53,7 +53,6 @@ export default class OrderRepositoryDatabase implements OrderRepository {
             Temporal.Instant.from(result.created_at),
           );
           if (result.coupon_code) {
-            console.info(result);
             o.addCoupon(
               new Coupon(
                 result.percentage,

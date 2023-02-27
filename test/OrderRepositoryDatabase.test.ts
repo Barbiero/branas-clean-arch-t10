@@ -1,14 +1,14 @@
-import { afterAll, beforeAll, describe, expect, test } from 'vitest';
+import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, test } from 'vitest';
 import pg from 'pg-promise';
 import OrderRepositoryDatabase from '../src/repository/OrderRepositoryDatabase.js';
 import Order from '../src/domain/entity/Order.js';
 import Product, { ProductDimensions } from '../src/domain/entity/Product.js';
 
 let conn: pg.IDatabase<{}>;
-beforeAll(() => {
+beforeEach(() => {
   conn = pg()('postgres://postgres:123456@localhost:5432/postgres');
 });
-afterAll(() => {
+afterEach(() => {
   conn.$pool.end();
 });
 const products = [

@@ -7,7 +7,6 @@ export default class ValidateCoupon {
   async isValid(couponName: string): Promise<boolean> {
     try {
       const coupon = await this.couponRepository.getByCode(couponName);
-      console.info(coupon);
       return ValidateCoupon.isValid(coupon);
     } catch (err) {
       console.error(err);

@@ -34,9 +34,7 @@ app.route('/health').get((req, res) => {
 });
 
 const makeConnection = () =>
-  pgp({ noWarnings: true })(
-    'postgres://postgres:123456@localhost:5432/postgres',
-  );
+  pgp()('postgres://postgres:123456@localhost:5432/postgres');
 
 app.route('/checkout').post<{}, Output, Input>(async (req, res) => {
   const connection = makeConnection();
@@ -105,7 +103,6 @@ app
       const couponValidator = new ValidateCoupon(
         new CouponRepositoryDatabase(connection),
       );
-      console.info(coupon);
       const isValid = await couponValidator.isValid(coupon);
       res.json(isValid).end();
     } finally {
