@@ -3,6 +3,7 @@ import CurrencyGateway from './CurrencyGateway.js';
 import Coupon from './domain/entity/Coupon.js';
 import Order from './domain/entity/Order.js';
 import CouponRepository from './repository/CouponRepository.js';
+import OrderRepository from './repository/OrderRepository.js';
 import ProductRepository from './repository/ProductRepository.js';
 
 type Input = {
@@ -14,13 +15,14 @@ type Input = {
   coupon?: string;
 };
 
-type Output = { total: number; freight: number };
+type Output = { total: number; freight: number; serialNumber: string };
 
 export default class Checkout {
   constructor(
     readonly productRepository: ProductRepository,
     readonly couponRepository: CouponRepository,
     readonly currencyGateway: CurrencyGateway,
+    readonly orderRepository: OrderRepository,
   ) {}
 
   async execute(input: Input, distanceKm: number): Promise<Output> {
@@ -28,7 +30,7 @@ export default class Checkout {
 
     const currencies = await this.currencyGateway.getCurrencies();
 
-    const order = new Order(crypto.randomUUID(), input.cpf, currencies);
+    const order = new Order(input.cpf, currencies);
 
     for (const orderItem of input.orders) {
       if (seenIds.has(orderItem.idProduct)) {
@@ -46,9 +48,12 @@ export default class Checkout {
       order.addCoupon(coupon);
     }
 
+    const resultOrder = await this.orderRepository.createOrder(order);
+
     return {
       total: order.getTotalCost(distanceKm),
       freight: order.getTotalFreightCost(distanceKm),
+      serialNumber: resultOrder.serialNumber,
     };
   }
 }

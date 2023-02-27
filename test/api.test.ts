@@ -100,4 +100,29 @@ describe.skipIf(isApiDown).concurrent('api tests', async () => {
     expect(resp.status).toBe(200);
     expect(resp.data.total).toBe(77950);
   });
+
+  test('consegue simular o frete', async () => {
+    const queryParams = {
+      orders: [
+        { idProduct: '1', count: '10' },
+        { idProduct: '2', count: '20' },
+      ],
+      cepFrom: '123456-01',
+      cepTo: '123456-01',
+    };
+    const resp = await axios.get(`${LOCALCONN}/freight`, {
+      params: queryParams,
+    });
+
+    expect(resp.status).toBe(200);
+    expect(resp.data).toBe(700);
+  });
+  test('Deve validar o cupom de desconto, indicando em um boolean se o cupom é válido', async () => {
+    const resp = await axios.get(`${LOCALCONN}/coupon/valid`, {
+      params: { coupon: 'VALE20' },
+    });
+
+    expect(resp.status).toBe(200);
+    expect(resp.data).toBe(true);
+  });
 });

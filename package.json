@@ -4,8 +4,8 @@
   "description": "",
   "type": "module",
   "scripts": {
-    "start": "tsx ./src/main/api.ts",
-    "currency": "tsx ./src/main/api_currency.ts",
+    "start": "tsx watch --clear-screen=false ./src/main/api.ts",
+    "currency": "tsx watch --clear-screen=false ./src/main/api_currency.ts",
     "test": "vitest run",
     "test:coverage": "vitest run --coverage"
   },

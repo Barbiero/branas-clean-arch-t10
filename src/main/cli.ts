@@ -3,6 +3,7 @@ import pgp from 'pg-promise';
 import ProductRepositoryDatabase from '../repository/ProductRepositoryDatabase.js';
 import CouponRepositoryDatabase from '../repository/CouponRepositoryDatabase.js';
 import CurrencyGatewayHttp from '../CurrencyGatewayHttp.js';
+import OrderRepositoryDatabase from '../repository/OrderRepositoryDatabase.js';
 
 type Input = {
   cpf: string;
@@ -37,11 +38,13 @@ process.stdin.on('data', async (chunk) => {
       const productRepository = new ProductRepositoryDatabase(connection);
       const couponRepository = new CouponRepositoryDatabase(connection);
       const currencyGateway = new CurrencyGatewayHttp();
+      const orderRepository = new OrderRepositoryDatabase(connection);
 
       const checkout = new Checkout(
         productRepository,
         couponRepository,
         currencyGateway,
+        orderRepository,
       );
       const output = await checkout.execute(input, 1000);
 

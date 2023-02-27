@@ -5,8 +5,11 @@ import Checkout from '../src/Checkout.js';
 import CurrencyGateway from '../src/CurrencyGateway.js';
 import CurrencyGatewayHttp from '../src/CurrencyGatewayHttp.js';
 import CurrencyTable from '../src/domain/entity/CurrencyTable.js';
+import Order from '../src/domain/entity/Order.js';
 import Product, { ProductDimensions } from '../src/domain/entity/Product.js';
 import CouponRepositoryDatabase from '../src/repository/CouponRepositoryDatabase.js';
+import OrderRepository from '../src/repository/OrderRepository.js';
+import OrderRepositoryDatabase from '../src/repository/OrderRepositoryDatabase.js';
 import ProductRepository from '../src/repository/ProductRepository.js';
 import ProductRepositoryDatabase from '../src/repository/ProductRepositoryDatabase.js';
 
@@ -21,6 +24,7 @@ beforeEach(function () {
     new ProductRepositoryDatabase(conn),
     new CouponRepositoryDatabase(conn),
     new CurrencyGatewayHttp(),
+    new OrderRepositoryDatabase(conn),
   );
 });
 
@@ -237,10 +241,22 @@ test('Deve criar um pedido com 1 produto em dólar usando um fake', async functi
       );
     },
   };
+  const orderRepository: OrderRepository = {
+    async getById(idOrder: number) {
+      return {} as Order;
+    },
+
+    async createOrder(order: Order): Promise<Order> {
+      order.idOrder = 1;
+      return order;
+    },
+  };
+
   checkout = new Checkout(
     productRepository,
     new CouponRepositoryDatabase(conn),
     currencyGateway,
+    orderRepository,
   );
   const input = {
     cpf: '407.302.170-27',
@@ -248,4 +264,18 @@ test('Deve criar um pedido com 1 produto em dólar usando um fake', async functi
   };
   const output = await checkout.execute(input, 1000);
   expect(output.total).toBe(3100);
+});
+
+test('Deve fazer um pedido, salvando no banco de dados', async () => {
+  const input = {
+    cpf: '407.302.170-27',
+    orders: [{ idProduct: 3, count: 1 }],
+  };
+  const output = await checkout.execute(input, 1000);
+
+  const order = await checkout.orderRepository.getById(
+    +output.serialNumber.slice(4),
+  );
+  expect(order).toBeTruthy();
+  expect(order?.serialNumber).toEqual(output.serialNumber);
 });

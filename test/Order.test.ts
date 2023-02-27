@@ -3,6 +3,7 @@ import crypto from 'node:crypto';
 import { describe, expect, test } from 'vitest';
 import Coupon from '../src/domain/entity/Coupon.js';
 import Cpf from '../src/domain/entity/Cpf.js';
+import FreightCalculator from '../src/domain/entity/FreightCalculator.js';
 import Order from '../src/domain/entity/Order.js';
 import Product, { ProductDimensions } from '../src/domain/entity/Product.js';
 
@@ -14,7 +15,7 @@ const products = [
 
 describe.concurrent('Criação de pedido', () => {
   test('Deve criar um pedido com 3 produtos (com descrição, preço e quantidade) e calcular o valor total ', () => {
-    const sale = new Order(crypto.randomUUID(), '088.833.820-13');
+    const sale = new Order('088.833.820-13');
     sale.addItem(products[0], 1);
     sale.addItem(products[1], 1);
     sale.addItem(products[2], 1);
@@ -23,7 +24,7 @@ describe.concurrent('Criação de pedido', () => {
   });
 
   test('Deve criar um pedido com 3 produtos, associar um cupom de desconto e calcular o total (percentual sobre o total do pedido) ', () => {
-    const sale = new Order(crypto.randomUUID(), new Cpf('088.833.820-13'));
+    const sale = new Order(new Cpf('088.833.820-13'));
     sale.addItem(products[0], 1);
     sale.addItem(products[1], 1);
     sale.addItem(products[2], 1);
@@ -36,12 +37,12 @@ describe.concurrent('Criação de pedido', () => {
 
   test('Não deve criar um pedido com cpf inválido (lançar algum tipo de erro)', () => {
     expect(() => {
-      new Order(crypto.randomUUID(), '088.833.820-00');
+      new Order('088.833.820-00');
     }).toThrowError('Invalid CPF string');
   });
 
   test('Não deve aplicar cupom de desconto expirado', () => {
-    const sale = new Order(crypto.randomUUID(), new Cpf('088.833.820-13'));
+    const sale = new Order(new Cpf('088.833.820-13'));
     sale.addItem(products[0], 1);
     sale.addItem(products[1], 1);
     sale.addItem(products[2], 1);
@@ -53,15 +54,19 @@ describe.concurrent('Criação de pedido', () => {
 
   test('Ao fazer um pedido, a quantidade de um item não pode ser negativa', () => {
     expect(() => {
-      const order = new Order(crypto.randomUUID(), new Cpf('088.833.820-13'));
+      const order = new Order(new Cpf('088.833.820-13'));
       order.addItem(products[0], -1);
       order.addItem(products[1], 1);
       order.addItem(products[2], 1);
     }).toThrow('Sale Item must have some positive quantity');
   });
 
-  test('Deve gerar o número de série do pedido', () => {});
-  test('Deve fazer um pedido, salvando no banco de dados', () => {});
-  test('Deve simular o frete, retornando o frete previsto para o pedido', () => {});
-  test('Deve validar o cupom de desconto, indicando em um boolean se o cupom é válido', () => {});
+  test('Deve gerar o número de série do pedido', () => {
+    const order = new Order(new Cpf('088.833.820-13'));
+    order.idOrder = 1;
+    order.createdAt = Temporal.Now.instant();
+
+    const currentYear = new Date().getFullYear();
+    expect(order.serialNumber).toEqual(`${currentYear}00000001`);
+  });
 });

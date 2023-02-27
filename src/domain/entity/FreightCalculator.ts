@@ -1,3 +1,4 @@
+import Order from './Order.js';
 import Product from './Product.js';
 
 export default class FreightCalculator {
@@ -10,5 +11,14 @@ export default class FreightCalculator {
     return itemFreight < FreightCalculator.MIN_FREIGHT
       ? FreightCalculator.MIN_FREIGHT
       : itemFreight;
+  }
+
+  static calculateOrder(order: Order, distanceKm: number) {
+    return order.saleItems.reduce(
+      (acc, curr) =>
+        acc +
+        FreightCalculator.calculate(curr.product, distanceKm) * curr.quantity,
+      0.0,
+    );
   }
 }

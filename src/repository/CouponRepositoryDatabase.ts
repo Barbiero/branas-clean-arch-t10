@@ -10,7 +10,8 @@ export default class CouponRepositoryDatabase implements CouponRepository {
     const couponData = await this.conn.oneOrNone<{
       code: string;
       percentage: number;
-    }>('select code, percentage from cccat10.coupon where code = $1', [code]);
+      expiresat: string;
+    }>('select code, percentage, expiresat::text from cccat10.coupon where code = $1', [code]);
 
     if (!couponData) {
       throw new Error('Coupon not found.');
@@ -19,8 +20,7 @@ export default class CouponRepositoryDatabase implements CouponRepository {
     return new Coupon(
       couponData.percentage/100,
       couponData.code,
-      // TODO: coupon expiration on db
-      Temporal.PlainDate.from('2999-12-31'),
+      Temporal.PlainDate.from(couponData.expiresat),
     );
   }
 }
