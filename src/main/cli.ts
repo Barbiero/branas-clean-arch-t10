@@ -1,9 +1,9 @@
-import Checkout from '../domain/usecase/Checkout.js';
 import pgp from 'pg-promise';
-import ProductRepositoryDatabase from '../repository/ProductRepositoryDatabase.js';
-import CouponRepositoryDatabase from '../repository/CouponRepositoryDatabase.js';
 import CurrencyGatewayHttp from '../CurrencyGatewayHttp.js';
+import Checkout from '../domain/usecase/Checkout.js';
+import CouponRepositoryDatabase from '../repository/CouponRepositoryDatabase.js';
 import OrderRepositoryDatabase from '../repository/OrderRepositoryDatabase.js';
+import ProductRepositoryDatabase from '../repository/ProductRepositoryDatabase.js';
 
 type Input = {
   cpf: string;
@@ -12,9 +12,11 @@ type Input = {
     count: number;
   }[];
   coupon?: string;
+  from: string;
+  to: string;
 };
 
-const input: Input = { cpf: '', orders: [] };
+const input: Input = { cpf: '', orders: [], from: '68900-102', to: '68900-102' };
 
 process.stdin.on('data', async (chunk) => {
   const command = chunk.toString().replace(/\n/g, '');
@@ -46,7 +48,7 @@ process.stdin.on('data', async (chunk) => {
         currencyGateway,
         orderRepository,
       );
-      const output = await checkout.execute(input, 1000);
+      const output = await checkout.execute(input);
 
       console.info(output.total);
     } catch (e: any) {

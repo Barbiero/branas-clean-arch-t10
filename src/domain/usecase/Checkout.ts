@@ -1,10 +1,10 @@
-import crypto from 'node:crypto';
 import CurrencyGateway from '../../CurrencyGateway.js';
-import Coupon from '../entity/Coupon.js';
-import Order from '../entity/Order.js';
 import CouponRepository from '../../repository/CouponRepository.js';
 import OrderRepository from '../../repository/OrderRepository.js';
 import ProductRepository from '../../repository/ProductRepository.js';
+import Coupon from '../entity/Coupon.js';
+import Order from '../entity/Order.js';
+import CalculateDistance from './CalculateDistance.js';
 
 type Input = {
   cpf: string;
@@ -13,6 +13,8 @@ type Input = {
     count: number;
   }[];
   coupon?: string;
+  from: string;
+  to: string;
 };
 
 type Output = { total: number; freight: number; serialNumber: string };
@@ -25,7 +27,7 @@ export default class Checkout {
     readonly orderRepository: OrderRepository,
   ) {}
 
-  async execute(input: Input, distanceKm: number): Promise<Output> {
+  async execute(input: Input): Promise<Output> {
     const seenIds = new Set<number>();
 
     const currencies = await this.currencyGateway.getCurrencies();
@@ -49,6 +51,11 @@ export default class Checkout {
     }
 
     const resultOrder = await this.orderRepository.createOrder(order);
+
+    const distanceKm = await new CalculateDistance().calculate(
+      input.from,
+      input.to,
+    );
 
     return {
       total: order.getTotalCost(distanceKm),

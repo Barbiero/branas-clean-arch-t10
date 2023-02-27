@@ -37,9 +37,9 @@ describe.concurrent('Product tests', () => {
     ];
 
     test('Deve retornar o preço mínimo de frete caso ele seja superior ao valor calculado', () => {
-      expect(FreightCalculator.calculate(products[0], 1000)).toBe(10);
+      expect(FreightCalculator.calculate(products[0], 1000, 1)).toBe(10);
     });
-    expect(FreightCalculator.calculate(products[1], 1000)).toBe(30);
-    expect(FreightCalculator.calculate(products[2], 1000)).toBe(400);
+    expect(FreightCalculator.calculate(products[1], 1000, 1)).toBe(30);
+    expect(FreightCalculator.calculate(products[2], 1000, 1)).toBe(400);
   });
 });

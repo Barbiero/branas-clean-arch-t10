@@ -1,12 +1,12 @@
 import pg from 'pg-promise';
 import sinon from 'sinon';
 import { afterAll, beforeAll, beforeEach, expect, test } from 'vitest';
-import Checkout from '../src/domain/usecase/Checkout.js';
 import CurrencyGateway from '../src/CurrencyGateway.js';
 import CurrencyGatewayHttp from '../src/CurrencyGatewayHttp.js';
 import CurrencyTable from '../src/domain/entity/CurrencyTable.js';
 import Order from '../src/domain/entity/Order.js';
 import Product, { ProductDimensions } from '../src/domain/entity/Product.js';
+import Checkout from '../src/domain/usecase/Checkout.js';
 import CouponRepositoryDatabase from '../src/repository/CouponRepositoryDatabase.js';
 import OrderRepository from '../src/repository/OrderRepository.js';
 import OrderRepositoryDatabase from '../src/repository/OrderRepositoryDatabase.js';
@@ -36,8 +36,10 @@ test('Não deve aceitar um pedido com cpf inválido', async function () {
   const input = {
     cpf: '406.302.170-27',
     orders: [],
+    from: '68900-102',
+    to: '68900-102',
   };
-  expect(() => checkout.execute(input, 1000)).rejects.toThrow(
+  expect(() => checkout.execute(input)).rejects.toThrow(
     new Error('Invalid CPF string'),
   );
 });
@@ -46,8 +48,10 @@ test('Deve criar um pedido vazio', async function () {
   const input = {
     cpf: '407.302.170-27',
     orders: [],
+    from: '68900-102',
+    to: '68900-102',
   };
-  const output = await checkout.execute(input, 1000);
+  const output = await checkout.execute(input);
   expect(output.total).toBe(0);
 });
 
@@ -59,8 +63,10 @@ test('Deve criar um pedido com 3 produtos', async function () {
       { idProduct: 2, count: 1 },
       { idProduct: 3, count: 3 },
     ],
+    from: '68900-102',
+    to: '68900-102',
   };
-  const output = await checkout.execute(input, 1000);
+  const output = await checkout.execute(input);
   expect(output.total).toBe(52490);
 });
 
@@ -73,8 +79,10 @@ test('Deve criar um pedido com 3 produtos com cupom de desconto', async function
       { idProduct: 3, count: 3 },
     ],
     coupon: 'VALE20',
+    from: '68900-102',
+    to: '68900-102',
   };
-  const output = await checkout.execute(input, 1000);
+  const output = await checkout.execute(input);
   expect(output.total).toBe(42240);
 });
 
@@ -87,8 +95,10 @@ test('Deve criar um pedido com 3 produtos com cupom de desconto expirado', async
       { idProduct: 3, count: 3 },
     ],
     coupon: 'VALE10',
+    from: '68900-102',
+    to: '68900-102',
   };
-  const output = await checkout.execute(input, 1000);
+  const output = await checkout.execute(input);
   expect(output.total).toBe(47365);
 });
 
@@ -96,8 +106,10 @@ test('Não deve criar um pedido com quantidade negativa', async function () {
   const input = {
     cpf: '407.302.170-27',
     orders: [{ idProduct: 1, count: -1 }],
+    from: '68900-102',
+    to: '68900-102',
   };
-  expect(() => checkout.execute(input, 1000)).rejects.toThrow(
+  expect(() => checkout.execute(input)).rejects.toThrow(
     new Error('Sale Item must have some positive quantity'),
   );
 });
@@ -109,8 +121,10 @@ test('Não deve criar um pedido com item duplicado', async function () {
       { idProduct: 1, count: 1 },
       { idProduct: 1, count: 1 },
     ],
+    from: '68900-102',
+    to: '68900-102',
   };
-  expect(() => checkout.execute(input, 1000)).rejects.toThrow(
+  expect(() => checkout.execute(input)).rejects.toThrow(
     new Error('Duplicate item'),
   );
 });
@@ -122,7 +136,7 @@ test('Deve criar um pedido com 1 produto calculando o frete', async function () 
     from: '22060030',
     to: '88015600',
   };
-  const output = await checkout.execute(input, 1000);
+  const output = await checkout.execute(input);
   expect(output.freight).toBe(30);
   expect(output.total).toBe(3780);
 });
@@ -131,8 +145,10 @@ test('Não deve criar um pedido se o produto tiver alguma dimensão negativa', a
   const input = {
     cpf: '407.302.170-27',
     orders: [{ idProduct: 4, count: 1 }],
+    from: '68900-102',
+    to: '68900-102',
   };
-  expect(() => checkout.execute(input, 1000)).rejects.toThrow(
+  expect(() => checkout.execute(input)).rejects.toThrow(
     new Error('Product must have positive dimensions'),
   );
 });
@@ -141,8 +157,10 @@ test('Deve criar um pedido com 1 produto calculando o frete com valor mínimo', 
   const input = {
     cpf: '407.302.170-27',
     orders: [{ idProduct: 3, count: 1 }],
+    from: '68900-102',
+    to: '68900-102',
   };
-  const output = await checkout.execute(input, 1000);
+  const output = await checkout.execute(input);
   expect(output.freight).toBe(400);
   expect(output.total).toBe(15400);
 });
@@ -160,8 +178,10 @@ test('Deve criar um pedido com 1 produto em dólar usando um stub', async functi
     const input = {
       cpf: '407.302.170-27',
       orders: [{ idProduct: 5, count: 1 }],
+      from: '68900-102',
+      to: '68900-102',
     };
-    const output = await checkout.execute(input, 1000);
+    const output = await checkout.execute(input);
     expect(output.total).toBe(3100);
   } finally {
     stubCurrencyGateway.restore();
@@ -187,8 +207,10 @@ test('Deve criar um pedido com 3 produtos com cupom de desconto com spy', async 
         { idProduct: 3, count: 3 },
       ],
       coupon: 'VALE20',
+      from: '68900-102',
+      to: '68900-102',
     };
-    const output = await checkout.execute(input, 1000);
+    const output = await checkout.execute(input);
     expect(output.total).toBe(42240);
     expect(spyCouponRepository.calledOnce).toBeTruthy();
     expect(spyCouponRepository.calledWith('VALE20')).toBeTruthy();
@@ -213,8 +235,10 @@ test('Deve criar um pedido com 1 produto em dólar usando um mock', async functi
     const input = {
       cpf: '407.302.170-27',
       orders: [{ idProduct: 5, count: 1 }],
+      from: '68900-102',
+      to: '68900-102',
     };
-    const output = await checkout.execute(input, 1000);
+    const output = await checkout.execute(input);
     expect(output.total).toBe(2000);
   } finally {
     mockCurrencyGateway.verify();
@@ -261,8 +285,10 @@ test('Deve criar um pedido com 1 produto em dólar usando um fake', async functi
   const input = {
     cpf: '407.302.170-27',
     orders: [{ idProduct: 6, count: 1 }],
+    from: '68900-102',
+    to: '68900-102',
   };
-  const output = await checkout.execute(input, 1000);
+  const output = await checkout.execute(input);
   expect(output.total).toBe(3100);
 });
 
@@ -270,8 +296,10 @@ test('Deve fazer um pedido, salvando no banco de dados', async () => {
   const input = {
     cpf: '407.302.170-27',
     orders: [{ idProduct: 3, count: 1 }],
+    from: '68900-102',
+    to: '68900-102',
   };
-  const output = await checkout.execute(input, 1000);
+  const output = await checkout.execute(input);
 
   const order = await checkout.orderRepository.getById(
     +output.serialNumber.slice(4),

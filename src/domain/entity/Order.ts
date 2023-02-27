@@ -61,7 +61,12 @@ export default class Order {
   }
 
   getTotalFreightCost(distanceKm: number) {
-    return FreightCalculator.calculateOrder(this, distanceKm);
+    return this.saleItems.reduce(
+      (acc, curr) =>
+        acc +
+        FreightCalculator.calculate(curr.product, distanceKm, curr.quantity),
+      0.0,
+    );
   }
 
   getTotalCost(distanceKm: number) {

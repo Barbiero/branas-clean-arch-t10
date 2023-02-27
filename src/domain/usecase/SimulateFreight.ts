@@ -1,5 +1,6 @@
 import ProductRepository from '../../repository/ProductRepository.js';
 import FreightCalculator from '../entity/FreightCalculator.js';
+import CalculateDistance from './CalculateDistance.js';
 
 type Input = {
   orders: {
@@ -12,7 +13,10 @@ type Input = {
 export default class SimulateFreight {
   constructor(readonly productRepository: ProductRepository) {}
   async calculate(input: Input): Promise<number> {
-    const distanceKm = 1000; // TODO calculate distance
+    const distanceKm = await new CalculateDistance().calculate(
+      input.cepFrom,
+      input.cepTo,
+    );
 
     const items = await Promise.all(
       input.orders.map(async (order) => {
@@ -25,7 +29,7 @@ export default class SimulateFreight {
 
     const totalFreight = items.reduce(
       (curr, { product, count }) =>
-        curr + FreightCalculator.calculate(product, distanceKm) * count,
+        curr + FreightCalculator.calculate(product, distanceKm, count),
       0.0,
     );
 

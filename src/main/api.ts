@@ -1,7 +1,7 @@
 import express from 'express';
 import pgp from 'pg-promise';
-import Checkout from '../domain/usecase/Checkout.js';
 import CurrencyGatewayHttp from '../CurrencyGatewayHttp.js';
+import Checkout from '../domain/usecase/Checkout.js';
 import CouponValidator from '../domain/usecase/CouponValid.js';
 import SimulateFreight from '../domain/usecase/SimulateFreight.js';
 import CouponRepositoryDatabase from '../repository/CouponRepositoryDatabase.js';
@@ -19,6 +19,8 @@ type Input = {
     count: number;
   }[];
   coupon?: string;
+  from: string;
+  to: string;
 };
 
 type Output =
@@ -50,7 +52,8 @@ app.route('/checkout').post<{}, Output, Input>(async (req, res) => {
       currencyGateway,
       orderRepository,
     );
-    const result = await checkout.execute(req.body, 1000);
+
+    const result = await checkout.execute(req.body);
 
     res.json(result).end();
   } catch (err: any) {

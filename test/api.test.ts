@@ -23,6 +23,8 @@ describe.skipIf(isApiDown).concurrent('api tests', async () => {
           count: 1,
         },
       ],
+      from: '68900-102',
+      to: '68900-102',
     });
 
     expect(resp.status).toBe(200);
@@ -39,6 +41,8 @@ describe.skipIf(isApiDown).concurrent('api tests', async () => {
         },
       ],
       coupon: 'VALE20',
+      from: '68900-102',
+      to: '68900-102',
     });
 
     expect(resp.status).toBe(200);
@@ -54,6 +58,8 @@ describe.skipIf(isApiDown).concurrent('api tests', async () => {
           count: 1,
         },
       ],
+      from: '68900-102',
+      to: '68900-102',
     });
 
     expect(resp.status).toBe(422);
@@ -73,6 +79,8 @@ describe.skipIf(isApiDown).concurrent('api tests', async () => {
           count: 3,
         },
       ],
+      from: '68900-102',
+      to: '68900-102',
     });
 
     expect(resp.status).toBe(422);
@@ -95,6 +103,8 @@ describe.skipIf(isApiDown).concurrent('api tests', async () => {
           count: 4,
         },
       ],
+      from: '68900-102',
+      to: '68900-102',
     });
 
     expect(resp.status).toBe(200);
@@ -107,8 +117,8 @@ describe.skipIf(isApiDown).concurrent('api tests', async () => {
         { idProduct: '1', count: '10' },
         { idProduct: '2', count: '20' },
       ],
-      cepFrom: '123456-01',
-      cepTo: '123456-01',
+      cepFrom: '123456-011',
+      cepTo: '123456-011',
     };
     const resp = await axios.get(`${LOCALCONN}/freight`, {
       params: queryParams,
