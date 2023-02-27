@@ -1,16 +1,9 @@
-import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, test } from 'vitest';
 import pg from 'pg-promise';
-import OrderRepositoryDatabase from '../src/repository/OrderRepositoryDatabase.js';
+import { afterAll, describe, expect, test } from 'vitest';
 import Order from '../src/domain/entity/Order.js';
 import Product, { ProductDimensions } from '../src/domain/entity/Product.js';
+import OrderRepositoryDatabase from '../src/repository/OrderRepositoryDatabase.js';
 
-let conn: pg.IDatabase<{}>;
-beforeEach(() => {
-  conn = pg()('postgres://postgres:123456@localhost:5432/postgres');
-});
-afterEach(() => {
-  conn.$pool.end();
-});
 const products = [
   new Product(1, 'camera', 1250, new ProductDimensions(1, 0.15, 0.2, 0.1)),
   new Product(2, 'guitarra', 5000, new ProductDimensions(3, 1, 0.3, 0.1)),
@@ -18,6 +11,13 @@ const products = [
 ];
 
 describe('OrderRepository Database tests', () => {
+  const conn: pg.IDatabase<{}> = pg()(
+    'postgres://postgres:123456@localhost:5432/postgres',
+  );
+
+  afterAll(() => {
+    conn.$pool.end();
+  });
   test('Saves order on db and generates an ID', async () => {
     const orderRepository = new OrderRepositoryDatabase(conn);
     const order = new Order('764.551.280-60');

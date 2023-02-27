@@ -13,27 +13,29 @@ type ProductSchema = {
 };
 
 export default class ProductRepositoryDatabase implements ProductRepository {
-  constructor(readonly conn: pg.IDatabase<{}>) {}
+  constructor(readonly conn: pg.IBaseProtocol<{}>) {}
 
   async getById(id: number): Promise<Product> {
-    const productData = await this.conn.oneOrNone<ProductSchema>(
-      'select * from cccat10.product where id_product = $1',
-      [id],
-    );
-    if (!productData) {
-      throw new Error('Product not found');
-    }
+    return this.conn.task(async () => {
+      const productData = await this.conn.oneOrNone<ProductSchema>(
+        'select * from cccat10.product where id_product = $1',
+        [id],
+      );
+      if (!productData) {
+        throw new Error('Product not found');
+      }
 
-    return new Product(
-      productData.id_product,
-      productData.description,
-      productData.price,
-      new ProductDimensions(
-        productData.weight,
-        productData.height,
-        productData.width,
-        productData.depth,
-      ),
-    );
+      return new Product(
+        productData.id_product,
+        productData.description,
+        productData.price,
+        new ProductDimensions(
+          productData.weight,
+          productData.height,
+          productData.width,
+          productData.depth,
+        ),
+      );
+    });
   }
 }

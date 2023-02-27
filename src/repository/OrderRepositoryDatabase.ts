@@ -6,7 +6,7 @@ import Product, { ProductDimensions } from '../domain/entity/Product.js';
 import OrderRepository from './OrderRepository.js';
 
 export default class OrderRepositoryDatabase implements OrderRepository {
-  constructor(readonly conn: pg.IDatabase<{}>) {}
+  constructor(readonly conn: pg.IBaseProtocol<{}>) {}
 
   async getById(idOrder: number): Promise<Order | null> {
     return this.conn.tx(async (t) => {

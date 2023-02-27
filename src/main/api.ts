@@ -33,32 +33,30 @@ app.route('/health').get((req, res) => {
   res.json({ status: 'OK' }).end();
 });
 
-const makeConnection = () =>
-  pgp()('postgres://postgres:123456@localhost:5432/postgres');
+const connection = pgp()('postgres://postgres:123456@localhost:5432/postgres');
 
 app.route('/checkout').post<{}, Output, Input>(async (req, res) => {
-  const connection = makeConnection();
-  try {
-    const productRepository = new ProductRepositoryDatabase(connection);
-    const couponRepository = new CouponRepositoryDatabase(connection);
-    const currencyGateway = new CurrencyGatewayHttp();
-    const orderRepository = new OrderRepositoryDatabase(connection);
+  connection.task(async (task) => {
+    try {
+      const productRepository = new ProductRepositoryDatabase(task);
+      const couponRepository = new CouponRepositoryDatabase(task);
+      const currencyGateway = new CurrencyGatewayHttp();
+      const orderRepository = new OrderRepositoryDatabase(task);
 
-    const checkout = new Checkout(
-      productRepository,
-      couponRepository,
-      currencyGateway,
-      orderRepository,
-    );
+      const checkout = new Checkout(
+        productRepository,
+        couponRepository,
+        currencyGateway,
+        orderRepository,
+      );
 
-    const result = await checkout.execute(req.body);
+      const result = await checkout.execute(req.body);
 
-    res.json(result).end();
-  } catch (err: any) {
-    res.status(422).json({ message: err.message }).end();
-  } finally {
-    await connection.$pool.end();
-  }
+      res.json(result).end();
+    } catch (err: any) {
+      res.status(422).json({ message: err.message }).end();
+    }
+  });
 });
 
 type InputFreight = {
@@ -79,35 +77,32 @@ app.route('/freight').get<
   null,
   InputFreight
 >(async (req, res) => {
-  const connection = makeConnection();
-  try {
-    const productRepository = new ProductRepositoryDatabase(connection);
-    const simulateFreight = new SimulateFreight(productRepository);
+  connection.task(async (task) => {
+    try {
+      const productRepository = new ProductRepositoryDatabase(task);
+      const simulateFreight = new SimulateFreight(productRepository);
 
-    const query = req.query;
-    const result = await simulateFreight.calculate(query);
-    res.json(result).end();
-  } catch (err: any) {
-    res.status(422).json({ message: err.message }).end();
-  } finally {
-    await connection.$pool.end();
-  }
+      const query = req.query;
+      const result = await simulateFreight.calculate(query);
+      res.json(result).end();
+    } catch (err: any) {
+      res.status(422).json({ message: err.message }).end();
+    }
+  });
 });
 
 app
   .route('/coupon/valid')
   .get<{}, boolean, null, { coupon: string }>(async (req, res) => {
-    const connection = makeConnection();
-    try {
-      const coupon = req.query.coupon;
-      const couponValidator = new ValidateCoupon(
-        new CouponRepositoryDatabase(connection),
-      );
-      const isValid = await couponValidator.isValid(coupon);
-      res.json(isValid).end();
-    } finally {
-      await connection.$pool.end();
-    }
+    connection.task(async (task) => {
+      try {
+        const coupon = req.query.coupon;
+        const couponRepository = new CouponRepositoryDatabase(task);
+        const couponValidator = new ValidateCoupon(couponRepository);
+        const isValid = await couponValidator.isValid(coupon);
+        res.json(isValid).end();
+      } catch {}
+    });
   });
 
 app.listen(port, 'localhost');
