@@ -1,4 +1,4 @@
-import Checkout from '../Checkout.js';
+import Checkout from '../domain/usecase/Checkout.js';
 import pgp from 'pg-promise';
 import ProductRepositoryDatabase from '../repository/ProductRepositoryDatabase.js';
 import CouponRepositoryDatabase from '../repository/CouponRepositoryDatabase.js';

@@ -1,7 +1,7 @@
 import pg from 'pg-promise';
 import sinon from 'sinon';
 import { afterAll, beforeAll, beforeEach, expect, test } from 'vitest';
-import Checkout from '../src/Checkout.js';
+import Checkout from '../src/domain/usecase/Checkout.js';
 import CurrencyGateway from '../src/CurrencyGateway.js';
 import CurrencyGatewayHttp from '../src/CurrencyGatewayHttp.js';
 import CurrencyTable from '../src/domain/entity/CurrencyTable.js';

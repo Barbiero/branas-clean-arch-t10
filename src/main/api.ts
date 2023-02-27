@@ -1,6 +1,6 @@
 import express from 'express';
 import pgp from 'pg-promise';
-import Checkout from '../Checkout.js';
+import Checkout from '../domain/usecase/Checkout.js';
 import CurrencyGatewayHttp from '../CurrencyGatewayHttp.js';
 import CouponValidator from '../domain/usecase/CouponValid.js';
 import SimulateFreight from '../domain/usecase/SimulateFreight.js';

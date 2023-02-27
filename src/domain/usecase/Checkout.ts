@@ -1,10 +1,10 @@
 import crypto from 'node:crypto';
-import CurrencyGateway from './CurrencyGateway.js';
-import Coupon from './domain/entity/Coupon.js';
-import Order from './domain/entity/Order.js';
-import CouponRepository from './repository/CouponRepository.js';
-import OrderRepository from './repository/OrderRepository.js';
-import ProductRepository from './repository/ProductRepository.js';
+import CurrencyGateway from '../../CurrencyGateway.js';
+import Coupon from '../entity/Coupon.js';
+import Order from '../entity/Order.js';
+import CouponRepository from '../../repository/CouponRepository.js';
+import OrderRepository from '../../repository/OrderRepository.js';
+import ProductRepository from '../../repository/ProductRepository.js';
 
 type Input = {
   cpf: string;
