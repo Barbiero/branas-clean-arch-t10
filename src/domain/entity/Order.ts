@@ -1,5 +1,5 @@
 import { Temporal } from '@js-temporal/polyfill';
-import CouponValidator from '../usecase/CouponValid.js';
+import ValidateCoupon from '../usecase/ValidateCoupon.js';
 import Coupon from './Coupon.js';
 import Cpf from './Cpf.js';
 import CurrencyTable from './CurrencyTable.js';
@@ -70,7 +70,7 @@ export default class Order {
   }
 
   getTotalCost(distanceKm: number) {
-    if (this.#coupon && !CouponValidator.isValid(this.#coupon)) {
+    if (this.#coupon && !ValidateCoupon.isValid(this.#coupon)) {
       throw new Error('Invalid coupon');
     }
 

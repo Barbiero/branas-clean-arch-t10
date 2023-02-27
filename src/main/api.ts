@@ -2,7 +2,7 @@ import express from 'express';
 import pgp from 'pg-promise';
 import CurrencyGatewayHttp from '../CurrencyGatewayHttp.js';
 import Checkout from '../domain/usecase/Checkout.js';
-import CouponValidator from '../domain/usecase/CouponValid.js';
+import ValidateCoupon from '../domain/usecase/ValidateCoupon.js';
 import SimulateFreight from '../domain/usecase/SimulateFreight.js';
 import CouponRepositoryDatabase from '../repository/CouponRepositoryDatabase.js';
 import OrderRepositoryDatabase from '../repository/OrderRepositoryDatabase.js';
@@ -102,7 +102,7 @@ app
     const connection = makeConnection();
     try {
       const coupon = req.query.coupon;
-      const couponValidator = new CouponValidator(
+      const couponValidator = new ValidateCoupon(
         new CouponRepositoryDatabase(connection),
       );
       console.info(coupon);
