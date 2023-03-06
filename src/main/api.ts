@@ -101,7 +101,9 @@ app
         const couponValidator = new ValidateCoupon(couponRepository);
         const isValid = await couponValidator.isValid(coupon);
         res.json(isValid).end();
-      } catch {}
+      } catch {
+        res.json(false).end();
+      }
     });
   });
 
